@@ -12,6 +12,7 @@ $config = json_decode( $configData, true );
 $uuid = $config[ "apikey" ];
 $minutes = intval( $config[ "minutes" ] );
 $directoryPath = $config[ "imagePath" ];
+$token_file = 'oauth_token.json';
 
 if( !isset( $_REQUEST[ "apiKey" ] ) || $_REQUEST[ "apiKey" ] != $uuid ) {
 
@@ -205,7 +206,7 @@ if( file_exists( $filePath ) ) {
 
 
     // Wenn Datei noch aktuell, dann Bild ausliefern
-    if( $interval->i < $minutes ) {
+    if( $interval->h <= 0 && $interval->i < $minutes ) {
 
         showFirstImage( $filePath );
         exit();
@@ -237,24 +238,29 @@ $service = new Google\Service\Drive($client);
 
 if (isset($_GET['code'])) {
 
-    $token = $client->fetchAccessTokenWithAuthCode($_GET['code'], $_SESSION['code_verifier']);
+    $token = $client->fetchAccessTokenWithAuthCode( $_GET['code'], $_SESSION['code_verifier'] );
     $client->setAccessToken($token);
 
-    // store in the session also
-    $_SESSION['upload_token'] = $token;
+    // Token in einer Datei speichern
+    file_put_contents( $token_file, json_encode( $token ) );
 
     // redirect back to the example
     header('Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL));
 
 }
 
-// set the access token as part of the client
-if (!empty($_SESSION['upload_token'])) {
 
-    $client->setAccessToken($_SESSION['upload_token']);
-    if ($client->isAccessTokenExpired()) {
+// Token aus der Datei lesen
+if ( file_exists( $token_file ) ) {
 
-        unset($_SESSION['upload_token']);
+    $token = json_decode( file_get_contents( $token_file ), true );
+    $client->setAccessToken( $token );
+
+    if ( $client->isAccessTokenExpired() ) {
+
+        unlink($token_file); // Lösche die Datei, wenn der Token abgelaufen ist
+        $_SESSION['code_verifier'] = $client->getOAuth2Service()->generateCodeVerifier();
+        $authUrl = $client->createAuthUrl();
 
     }
 
