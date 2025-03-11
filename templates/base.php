@@ -6,26 +6,16 @@ function isWebRequest()
     return isset($_SERVER['HTTP_USER_AGENT']);
 }
 
-function pageHeader($title)
+function pageHeader()
 {
-    $ret = "<!doctype html>
-  <html>
-  <head>
-    <title>" . $title . "</title>
-    <link href='styles/style.css' rel='stylesheet' type='text/css' />
-  </head>
-  <body>\n";
-    if ($_SERVER['PHP_SELF'] != "/index.php") {
-        $ret .= "<p><a href='index.php'>Back</a></p>";
-    }
-    $ret .= "<header><h1>" . $title . "</h1></header>";
-
+    
     // Start the session (for storing access tokens and things)
-    if (!headers_sent()) {
+    if ( !headers_sent() ) {
+
         session_start();
+
     }
 
-    return $ret;
 }
 
 
