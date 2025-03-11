@@ -275,10 +275,7 @@ if ( file_exists( $token_file ) ) {
 if ($client->getAccessToken()) {
 
     // Check for "Big File" and include the file ID and size
-    $tmp = getRandomFileFromFolder( $service, "1-j8dlP6CsHCyibkvtE4_tm-yjKL_rkDj", $directoryPath );
-
-    // var_dump( $files );
-    echo "Verbunden...";
+    $tmp = getRandomFileFromFolder( $service, "1lzj5Co-lKvDH-8yB8NOz0MWXZuoePVvB", $directoryPath );
     exit();
 
 }
