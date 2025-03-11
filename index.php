@@ -147,7 +147,7 @@ function rotateImage( $filename ) {
     // Gedrehtes Bild speichern
     imagejpeg( $source, $directoryPath .'/tmp.jpg' );
 
-    resizeImage( $directoryPath .'/tmp.jpg' );
+    return $directoryPath .'/tmp.jpg';
 
 }
 
@@ -226,8 +226,8 @@ if ( !$oauth_credentials = getOAuthCredentialsFile() ) {
 }
 
 
-$redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] ."?apiKey=" .$uuid;
-// $redirect_uri = 'https://stefan-schulte.com/imageserve/index.php?apiKey=' .$uuid;
+// $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] ."?apiKey=" .$uuid;
+$redirect_uri = 'https://stefan-schulte.com/imageserve/index.php?apiKey=' .$uuid;
 
 $client = new Google\Client();
 $client->setAuthConfig($oauth_credentials);
