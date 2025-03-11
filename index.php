@@ -46,7 +46,9 @@ function getRandomFileFromFolder( $service, $folderId, $dest ) {
 
     file_put_contents( $dest ."/" .$fileName, $content->getBody()->getContents() );
 
-    showFirstImage( $dest ."/" .$fileName );
+    // showFirstImage( $dest ."/" .$fileName );
+    resizeImage( rotateImage( $dest ."/" .$fileName ) );
+    showFirstImage( $dest ."/tmp.jpg" );
 
 }
 
@@ -114,40 +116,103 @@ function showFirstImage( $filePath ) {
 }
 
 
-echo pageHeader();
 
+function rotateImage( $filename ) {
 
+    global $directoryPath;
 
-// Wenn Datei noch aktuell, dann Bild ausliefern
-$files = glob($directoryPath . '/*');
-if( !empty( $files ) ) {
+    $exif = exif_read_data($filename);
 
-  $filePath = $files[0];
-  
-  $modificationTime = filemtime( $filePath );
+    // Load
+    $source = imagecreatefromjpeg($filename);
 
-  // Erstellen Sie ein DateTime-Objekt für den Timestamp
-  $timestampDateTime = new DateTime();
-  $timestampDateTime->setTimestamp( $modificationTime );
-      
-  // Erstellen Sie ein DateTime-Objekt für die aktuelle Zeit
-  $currentDateTime = new DateTime();
+    if ( !empty( $exif[ 'Orientation' ] ) ) {
 
-  // Berechnen Sie den Unterschied zwischen den beiden DateTime-Objekten
-  $interval = $currentDateTime->diff( $timestampDateTime );
+        switch ( $exif[ 'Orientation' ] ) {
 
+            case 3:
+                $source = imagerotate($source, 180, 0);
+                break;
+            case 6:
+                $source = imagerotate($source, -90, 0);
+                break;
+            case 8:
+                $source = imagerotate($source, 90, 0);
+                break;
 
-  // Wenn Datei noch aktuell, dann Bild ausliefern
-  if( $interval->i < $minutes ) {
+        }
 
-    showFirstImage( $filePath );
-    exit();
+    }
 
-  }
+    // Gedrehtes Bild speichern
+    imagejpeg( $source, $directoryPath .'/tmp.jpg' );
 
+    resizeImage( $directoryPath .'/tmp.jpg' );
 
 }
 
+
+function resizeImage( $filename ) {
+
+    // Get new sizes
+    list($width, $height) = getimagesize($filename);
+
+    $newwidth = $width;
+    $newheight = $height;
+
+    $maxWidth = 1280;
+
+    if( $width >= $maxWidth ) {
+
+        $rel = $maxWidth / $width;
+        $newwidth = $maxWidth;
+        $newheight = $height * $rel;
+    
+    }
+
+    // Load
+    $source = imagecreatefromjpeg($filename);
+
+    $thumb = imagecreatetruecolor($newwidth, $newheight);
+    
+    // Resize
+    imagecopyresized($thumb, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+
+    // Output
+    imagejpeg( $thumb, $filename );
+
+}
+
+
+echo pageHeader();
+
+
+$filePath = $directoryPath ."/tmp.jpg";
+
+if( file_exists( $filePath ) ) {
+
+    $modificationTime = filemtime( $filePath );
+
+    // Erstellen Sie ein DateTime-Objekt für den Timestamp
+    $timestampDateTime = new DateTime();
+    $timestampDateTime->setTimestamp( $modificationTime );
+        
+    // Erstellen Sie ein DateTime-Objekt für die aktuelle Zeit
+    $currentDateTime = new DateTime();
+
+    // Berechnen Sie den Unterschied zwischen den beiden DateTime-Objekten
+    $interval = $currentDateTime->diff( $timestampDateTime );
+
+
+    // Wenn Datei noch aktuell, dann Bild ausliefern
+    if( $interval->i < $minutes ) {
+
+        showFirstImage( $filePath );
+        exit();
+
+    }
+
+}
 
 
 // Ansonsten Bild entfernen und aus Google-Drive neues abholen
@@ -161,8 +226,8 @@ if ( !$oauth_credentials = getOAuthCredentialsFile() ) {
 }
 
 
-// $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] ."?apiKey=" .$uuid;
-$redirect_uri = 'https://stefan-schulte.com/imageserve/index.php?apiKey=' .$uuid;
+$redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] ."?apiKey=" .$uuid;
+// $redirect_uri = 'https://stefan-schulte.com/imageserve/index.php?apiKey=' .$uuid;
 
 $client = new Google\Client();
 $client->setAuthConfig($oauth_credentials);
