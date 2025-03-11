@@ -245,7 +245,7 @@ if (isset($_GET['code'])) {
     file_put_contents( $token_file, json_encode( $token ) );
 
     // redirect back to the example
-    header('Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL));
+    header( 'Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL) );
 
 }
 
@@ -285,8 +285,9 @@ if ($client->getAccessToken()) {
 
 
 if ( isset( $authUrl ) ) {
-  
-  echo "<a class='login' href='" .$authUrl ."'>Connect Me!</a>";
+
+    header( 'Location: ' . filter_var( $authUrl, FILTER_SANITIZE_URL ) );
+    // echo "<a class='login' href='" .$authUrl ."'>Connect Me!</a>";
 
 }
 ?>
