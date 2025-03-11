@@ -116,35 +116,46 @@ function showFirstImage( $filePath ) {
 
 echo pageHeader();
 
-// Pfad zum Ordner 'image'
 
-// 
-// showFirstImage( $directoryPath );
+if( !empty( $files ) ) {
 
-$files = glob($directoryPath . '/*');
-if ( empty( $files ) ) throw new Exception('No files found in the specified folder.');
-$filePath = $files[0];
+  $files = glob($directoryPath . '/*');
+  $filePath = $files[0];
 
-$modificationTime = filemtime( $filePath );
+}
 
-// Erstellen Sie ein DateTime-Objekt für den Timestamp
-$timestampDateTime = new DateTime();
-$timestampDateTime->setTimestamp( $modificationTime );
-    
-// Erstellen Sie ein DateTime-Objekt für die aktuelle Zeit
-$currentDateTime = new DateTime();
-
-// Berechnen Sie den Unterschied zwischen den beiden DateTime-Objekten
-$interval = $currentDateTime->diff( $timestampDateTime );
 
 
 // Wenn Datei noch aktuell, dann Bild ausliefern
-if( $interval->i < $minutes ) {
+if( !empty( $files ) ) {
 
-  showFirstImage( $filePath );
-  exit();
+  $files = glob($directoryPath . '/*');
+  $filePath = $files[0];
+  
+  $modificationTime = filemtime( $filePath );
+
+  // Erstellen Sie ein DateTime-Objekt für den Timestamp
+  $timestampDateTime = new DateTime();
+  $timestampDateTime->setTimestamp( $modificationTime );
+      
+  // Erstellen Sie ein DateTime-Objekt für die aktuelle Zeit
+  $currentDateTime = new DateTime();
+
+  // Berechnen Sie den Unterschied zwischen den beiden DateTime-Objekten
+  $interval = $currentDateTime->diff( $timestampDateTime );
+
+
+  // Wenn Datei noch aktuell, dann Bild ausliefern
+  if( $interval->i < $minutes ) {
+
+    showFirstImage( $filePath );
+    exit();
+
+  }
+
 
 }
+
 
 
 // Ansonsten Bild entfernen und aus Google-Drive neues abholen
