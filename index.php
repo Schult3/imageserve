@@ -117,14 +117,6 @@ function showFirstImage( $filePath ) {
 echo pageHeader();
 
 
-if( !empty( $files ) ) {
-
-  $files = glob($directoryPath . '/*');
-  $filePath = $files[0];
-
-}
-
-
 
 // Wenn Datei noch aktuell, dann Bild ausliefern
 if( !empty( $files ) ) {
