@@ -119,9 +119,9 @@ echo pageHeader();
 
 
 // Wenn Datei noch aktuell, dann Bild ausliefern
+$files = glob($directoryPath . '/*');
 if( !empty( $files ) ) {
 
-  $files = glob($directoryPath . '/*');
   $filePath = $files[0];
   
   $modificationTime = filemtime( $filePath );
