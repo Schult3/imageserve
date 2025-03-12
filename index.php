@@ -239,10 +239,12 @@ $service = new Google\Service\Drive($client);
 if (isset($_GET['code'])) {
 
     $token = $client->fetchAccessTokenWithAuthCode( $_GET['code'], $_SESSION['code_verifier'] );
+    $refreshToken = $client->getRefreshToken();
+
     $client->setAccessToken($token);
 
     // Token in einer Datei speichern
-    file_put_contents( $token_file, json_encode( $token ) );
+    file_put_contents( $token_file, json_encode( $refreshToken ) );
 
     // redirect back to the example
     header( 'Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL) );
@@ -253,16 +255,11 @@ if (isset($_GET['code'])) {
 // Token aus der Datei lesen
 if ( file_exists( $token_file ) ) {
 
-    $token = json_decode( file_get_contents( $token_file ), true );
-    $client->setAccessToken( $token );
+    $refreshToken = json_decode( file_get_contents( $token_file ), true );
+    $accessToken = $client->fetchAccessTokenWithRefreshToken( $refreshToken );
 
-    if ( $client->isAccessTokenExpired() ) {
-
-        unlink($token_file); // Lösche die Datei, wenn der Token abgelaufen ist
-        $_SESSION['code_verifier'] = $client->getOAuth2Service()->generateCodeVerifier();
-        $authUrl = $client->createAuthUrl();
-
-    }
+    // Das neue Access Token wird im Client-Objekt gesetzt
+    $client->setAccessToken( $accessToken );
 
 } else {
 
