@@ -12,7 +12,7 @@ $config = json_decode( $configData, true );
 $uuid = $config[ "apikey" ];
 $minutes = intval( $config[ "minutes" ] );
 $directoryPath = $config[ "imagePath" ];
-$token_file = 'oauth_token.json';
+$token_file = 'refresh-token.json';
 
 if( !isset( $_REQUEST[ "apiKey" ] ) || $_REQUEST[ "apiKey" ] != $uuid ) {
 
@@ -47,7 +47,6 @@ function getRandomFileFromFolder( $service, $folderId, $dest ) {
 
     file_put_contents( $dest ."/" .$fileName, $content->getBody()->getContents() );
 
-    // showFirstImage( $dest ."/" .$fileName );
     resizeImage( rotateImage( $dest ."/" .$fileName ) );
     showFirstImage( $dest ."/tmp.jpg" );
 
@@ -226,40 +225,33 @@ if ( !$oauth_credentials = getOAuthCredentialsFile() ) {
 
 }
 
-
-// $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] ."?apiKey=" .$uuid;
-$redirect_uri = 'https://stefan-schulte.com/imageserve/index.php?apiKey=' .$uuid;
+// TODO - Uri anpassen
+$redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] ."?apiKey=" .$uuid;
+// $redirect_uri = 'https://stefan-schulte.com/imageserve/index.php?apiKey=' .$uuid;
 
 $client = new Google\Client();
-$client->setAuthConfig($oauth_credentials);
-$client->setRedirectUri($redirect_uri);
+$client->setAuthConfig( $oauth_credentials );
+$client->setRedirectUri( $redirect_uri );
 $client->addScope("https://www.googleapis.com/auth/drive");
-$service = new Google\Service\Drive($client);
+$service = new Google\Service\Drive( $client );
 
-if (isset($_GET['code'])) {
-
-    $token = $client->fetchAccessTokenWithAuthCode( $_GET['code'], $_SESSION['code_verifier'] );
-    $refreshToken = $client->getRefreshToken();
-
-    $client->setAccessToken($token);
-
-    // Token in einer Datei speichern
-    file_put_contents( $token_file, json_encode( $refreshToken ) );
-
-    // redirect back to the example
-    header( 'Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL) );
-
-}
 
 
 // Token aus der Datei lesen
 if ( file_exists( $token_file ) ) {
 
-    $refreshToken = json_decode( file_get_contents( $token_file ), true );
-    $accessToken = $client->fetchAccessTokenWithRefreshToken( $refreshToken );
+    $token = json_decode( file_get_contents( $token_file ), true )[ "refresh-token" ];
+    $client->fetchAccessTokenWithRefreshToken( $token );
 
-    // Das neue Access Token wird im Client-Objekt gesetzt
-    $client->setAccessToken( $accessToken );
+} else if (isset( $_GET[ 'code' ] ) ) {
+
+    $token = $client->fetchAccessTokenWithAuthCode( $_GET['code'], $_SESSION[ "code_verifier" ] );
+
+    $client->setAccessToken( $token );
+    $accessToken = $client->getAccessToken();
+
+    // redirect back to the example
+    header( 'Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL) );
 
 } else {
 
@@ -280,8 +272,8 @@ if ($client->getAccessToken()) {
 
 if ( isset( $authUrl ) ) {
 
-    header( 'Location: ' . filter_var( $authUrl, FILTER_SANITIZE_URL ) );
-    // echo "<a class='login' href='" .$authUrl ."'>Connect Me!</a>";
+    // header( 'Location: ' . filter_var( $authUrl, FILTER_SANITIZE_URL ) );
+    echo "<a class='login' href='" .$authUrl ."'>Connect Me!</a>";
 
 }
 ?>

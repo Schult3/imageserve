@@ -2,3 +2,4 @@
 /credentials.json
 /oauth-credentials.json
 vendor
+/refresh-token.json
