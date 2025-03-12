@@ -225,9 +225,8 @@ if ( !$oauth_credentials = getOAuthCredentialsFile() ) {
 
 }
 
-// TODO - Uri anpassen
-$redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] ."?apiKey=" .$uuid;
-// $redirect_uri = 'https://stefan-schulte.com/imageserve/index.php?apiKey=' .$uuid;
+// $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] ."?apiKey=" .$uuid;
+$redirect_uri = 'https://stefan-schulte.com/imageserve/index.php?apiKey=' .$uuid;
 
 $client = new Google\Client();
 $client->setAuthConfig( $oauth_credentials );
@@ -241,6 +240,9 @@ $service = new Google\Service\Drive( $client );
 if ( file_exists( $token_file ) ) {
 
     $token = json_decode( file_get_contents( $token_file ), true )[ "refresh-token" ];
+    var_dump( $token );
+    exit();
+
     $client->fetchAccessTokenWithRefreshToken( $token );
 
 } else if (isset( $_GET[ 'code' ] ) ) {
