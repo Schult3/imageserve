@@ -240,9 +240,6 @@ $service = new Google\Service\Drive( $client );
 if ( file_exists( $token_file ) ) {
 
     $token = json_decode( file_get_contents( $token_file ), true )[ "refresh-token" ];
-    var_dump( $token );
-    exit();
-
     $client->fetchAccessTokenWithRefreshToken( $token );
 
 } else if (isset( $_GET[ 'code' ] ) ) {
