@@ -75,43 +75,32 @@ function clearImageFolder( $folderPath ) {
 
 function showFirstImage( $filePath ) {
 
-  // Bestimme den Dateityp anhand der Dateierweiterung
-  $fileExtension = pathinfo( $filePath, PATHINFO_EXTENSION );
+    global $minutes;
 
-  // Setze die richtigen Header basierend auf dem Dateityp
-  switch ($fileExtension) {
-      case 'JPG':
-          header('Content-Type: image/jpeg');
-          break;
-      case 'jpg':
-          header('Content-Type: image/jpeg');
-          break;
-      case 'jpeg':
-          header('Content-Type: image/jpeg');
-          break;
-      case 'png':
-          header('Content-Type: image/png');
-          break;
-      case 'gif':
-          header('Content-Type: image/gif');
-          break;
-      case 'bmp':
-          header('Content-Type: image/bmp');
-          break;
-      case 'webp':
-          header('Content-Type: image/webp');
-          break;
-      default:
-          // Fehlerbehandlung für nicht unterstützte Dateitypen
-          echo "Nicht unterstützter Dateityp.";
-          exit;
-  }
+    header('Content-Type: image/jpeg');
+    // Setze die Content-Length Header
+    header('Content-Length: ' . filesize( $filePath ) );
+    header('Cache-Control: no-cache, must-revalidate');
 
-  // Setze die Content-Length Header
-  header('Content-Length: ' . filesize( $filePath ) );
+    // Aktuelle Zeit
+    $dt = new DateTime();
+    $interval = new DateInterval('PT' .$minutes .'M');
+    $dt->add( $interval );
 
-  // Lese die Datei und liefere sie aus
-  readfile($filePath);
+    // Erstelle ein DateTimeZone-Objekt für GMT
+    $gmtTimezone = new DateTimeZone('GMT');
+
+    // Setze die Zeitzone des DateTime-Objekts auf GMT
+    $dt->setTimezone($gmtTimezone);
+
+    $expiresHeader = $dt->format( 'D, d M Y H:i:s' );
+
+    // Setzen des Expires-Headers
+    header('Expires: ' . $expiresHeader ." GMT");
+    header('Pragma: no-cache');
+
+    // Lese die Datei und liefere sie aus
+    readfile( $filePath );
 
 }
 
