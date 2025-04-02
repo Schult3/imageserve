@@ -252,7 +252,7 @@ if ( file_exists( $token_file ) ) {
 if ($client->getAccessToken()) {
 
     // Check for "Big File" and include the file ID and size
-    $tmp = getRandomFileFromFolder( $service, "1zQMapmuIcegnpfys38Ghu0UdD1Y2srhe", $directoryPath );
+    $tmp = getRandomFileFromFolder( $service, "17J1hMBzAxSC_KoF9cJjRClwom7lmRyGH", $directoryPath );
     exit();
 
 }
