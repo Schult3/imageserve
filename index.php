@@ -14,12 +14,15 @@ $minutes = intval( $config[ "minutes" ] );
 $directoryPath = $config[ "imagePath" ];
 $token_file = 'refresh-token.json';
 
-if( !isset( $_REQUEST[ "apiKey" ] ) || $_REQUEST[ "apiKey" ] != $uuid ) {
+$folderID = $_REQUEST[ "folderID" ];
+
+if( !isset( $_REQUEST[ "apiKey" ] ) || $_REQUEST[ "apiKey" ] != $uuid || !isset( $folderID ) ) {
 
     http_response_code( 403 );
     exit();
 
 }
+
 
 include_once __DIR__ . '/vendor/autoload.php';
 include_once "templates/base.php";
@@ -252,7 +255,7 @@ if ( file_exists( $token_file ) ) {
 if ($client->getAccessToken()) {
 
     // Check for "Big File" and include the file ID and size
-    $tmp = getRandomFileFromFolder( $service, "17J1hMBzAxSC_KoF9cJjRClwom7lmRyGH", $directoryPath );
+    $tmp = getRandomFileFromFolder( $service, $folderID, $directoryPath );
     exit();
 
 }
