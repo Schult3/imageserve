@@ -30,18 +30,39 @@ include_once "templates/base.php";
 
 function getRandomFileFromFolder( $service, $folderId, $dest ) {
 
+    
     $optParams = array(
         'q' => "'$folderId' in parents",
-        'fields' => 'files(id, name)'
+        'fields' => 'nextPageToken, files(id, name)',
+        'pageSize' => 500
     );
-    $results = $service->files->listFiles($optParams);
+    
+    $results = [];
+    $pageToken = null;
 
-    if (count($results->files) == 0) {
+    
+    do {
+
+        if ($pageToken) {
+
+            $optParams['pageToken'] = $pageToken;
+
+        }
+        
+        $response = $service->files->listFiles($optParams);
+        $results = array_merge($results, $response->files);
+        $pageToken = $response->nextPageToken;
+
+    } while( $pageToken );
+
+    if (count( $results ) == 0) {
+
         throw new Exception('No files found in the specified folder.');
+
     }
 
-    $randomFile = $results->files[array_rand($results->files)];
-
+    $randomFile = $results [ array_rand( $results ) ];
+ 
     $fileName = $randomFile->name;
     $fileID = $randomFile->id;
 
