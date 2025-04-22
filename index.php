@@ -16,6 +16,15 @@ $token_file = 'refresh-token.json';
 
 $folderID = $_REQUEST[ "folderID" ];
 
+
+$data = date( 'Y-m-d H:i:s' ) ." | " .$_SERVER[ "REQUEST_URI" ];
+
+$logPath = __DIR__. "/logs/logs.txt";
+$mode = (!file_exists($logPath)) ? 'w':'a';
+$logfile = fopen($logPath, $mode);
+fwrite($logfile, "\r\n". $data);
+fclose($logfile);
+
 if( !isset( $_REQUEST[ "apiKey" ] ) || $_REQUEST[ "apiKey" ] != $uuid || !isset( $folderID ) ) {
 
     http_response_code( 403 );
